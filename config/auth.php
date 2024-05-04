@@ -46,10 +46,11 @@ return [
     //                 'driver' => 'session',
     //                 'provider' => 'users',
     //             ],
-        'api' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+    'api' => [
+        'driver' => 'sanctum', // Change 'session' to 'sanctum'
+        'provider' => 'users',
+        'hash' => false, // If you're using Laravel 8 or later, set this to false
+    ],
     ],
 
     /*

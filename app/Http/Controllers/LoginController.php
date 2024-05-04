@@ -60,13 +60,15 @@ class LoginController extends Controller
                     if ( Auth::guard("api")->attempt($credential)) {
                         $message = $this->notify->where('id', 26)->first()->custom_text;
                         $notification = $message;
-                        \Log::info("user" . Auth::user());
+                        \Log::info("user" . $request->user());
                         // Session::put('userAuth', Auth::user());
                         Session::flash('userAuth', Auth::user());
                         Session::save();
-                        
+                        $tokenResult = $user->createToken('Personal Access Token');
+                        $token = $tokenResult->plainTextToken;
                         \Log::info("auth user login" . Session::get("userAuth"));
-                        return response()->json(['success' => $notification,"user"=>Auth::guard("api")->user()]);
+                        return response()->json(['success' => $notification,"user"=>Auth::guard("api")->user(),'accessToken' =>$token,
+                        'token_type' => 'Bearer',]);
                     } else {
                         $message = $this->notify->where('id', 28)->first()->custom_text;
                         $notification = $message;
@@ -111,26 +113,21 @@ class LoginController extends Controller
        
        
     }
-    public function getUser(){
-       $userAuth =  Session::get("userAuth");
-        Session::flash("message", "ok");
-        // $userAuth = JWTAuth::parseToken($request)->authenticate();
-        
-        \Log::info("user" . Auth::guard("api")->user());
-        \Log::info("message" .Session::get("message"));
-        \Log::info("auth user get" . Session::get("userAuth"));
-        return response()->json(["user"=>Auth::guard("api")->user()]);
+    public function getUser(Request $request){
+        return response()->json($request->user());
     }
 
     //Log out
-    public function userLogOut()
+    public function userLogOut(Request $request)
     {
+        
         $authSession = Session::get("userAuth");
-        Session::remove("userAuth");
-        \Log::info("user auth" .Auth::guard("api")->user());
-        \Log::info("message: " .Session::get("message"));
-        if(Auth::guard("api")->check()){
-           Auth::guard("api")->logout();
+        // Session::remove("userAuth");
+        \Log::info("user auth" .Auth::guard("sanctum")->user());
+        // \Log::info("message: " .Session::get("message"));
+        if(Auth::guard("sanctum")->user()){
+           Auth::guard("sanctum")->logout();
+        // $request->user()->tokens()->delete();
         
            return response()->json(["success"=>"Sign out successfully "]);
        } else{

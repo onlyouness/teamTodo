@@ -27,7 +27,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     \Log::info("api/user done");
     return $request->user();
 });
-Route::get("/me",[LoginController::class,"getUser"]);
+Route::group(['middleware' => 'auth:sanctum'], function() {
+    Route::get("/me",[LoginController::class,"getUser"]);
+  });
 Route::get("/hello", function () {
     return response()->json(["success"=>"Hello"]);
 });

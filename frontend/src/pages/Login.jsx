@@ -42,7 +42,7 @@ const Login = () => {
             .then((response) => {
                 console.log(
                     "user logged in successfully:",
-                    response.data.success
+                    response
                 );
 
                 const successMessage = response.data.success; // Assuming success message is stored under 'success' key
@@ -50,7 +50,7 @@ const Login = () => {
                 setPassword("");
                 // After successful login
                 // localStorage.removeItem("token");
-                localStorage.setItem("token", response.data.token); // Store the token in local storage
+                // localStorage.setItem("token", response.data.token); // Store the token in local storage
 
                 // toast.success(successMessage);
                 navigate(
