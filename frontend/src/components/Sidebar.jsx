@@ -1,21 +1,28 @@
-import React from 'react'
+import React,{useContext} from 'react'
 import { Link } from 'react-router-dom'
 import "../index.css"
 import axios from 'axios';
 import { Navigate, useNavigate } from 'react-router-dom';
+import {AuthContext} from "../context/AuthContext"
 
+    
 
 
 const Sidebar = () => {
+  const {currentUser} = useContext(AuthContext)
   const navigate = useNavigate();
   const handleLogOut = () => {
+    const token = localStorage.getItem("token");
     axios
-          .get("http://localhost:8000/api/logout")
+      .get("http://localhost:8000/api/logout", {
+            headers: { Authorization: `Bearer ${token}`,Accept: "application/json" },
+          })
         .then((response) => {
               console.log(
                   "user log Out successfully:",
                   response.data.success
-            );
+          );
+          localStorage.removeItem("token");
               const successMessage = response.data.success; // Assuming success message is stored under 'success' key
               navigate("/login/?message=" + encodeURIComponent(successMessage));
           })
@@ -45,15 +52,21 @@ const Sidebar = () => {
       <div className="flex items-center">
           <div className="flex items-center ms-3">
             <div>
-              <button type="button" className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 " aria-expanded="false" data-dropdown-toggle="dropdown-user">
+                    <button type="button" className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 " aria-expanded="false" data-dropdown-toggle="dropdown-user">
+                  
                 <span className="sr-only">Open user menu</span>
-                <img className="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo" />
+                {/* <img className="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo" /> */}
+                <img className="w-8 h-8 rounded-full" src={`http://127.0.0.1:8000/storage/${currentUser?.image}`} alt="user photo" />
+                {/* <img className="w-8 h-8 rounded-full" src={urldecode(url('/storage/uploads'`${currentUser?.image}`))} alt="user photo" /> */}
               </button>
             </div>
             <div className="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow " id="dropdown-user">
               <div className="px-4 py-3" role="none">
                 <p className="text-sm text-gray-900 " role="none">
                   Neil Sims
+                </p>
+                <p className="text-sm text-gray-900 " role="none">
+                  {currentUser?.name}
                 </p>
                 <p className="text-sm font-medium text-gray-900 truncate " role="none">
                   neil.sims@flowbite.com

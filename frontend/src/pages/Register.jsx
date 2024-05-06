@@ -35,10 +35,12 @@ function Register() {
                     "user created successfully:",
                     response.data.success
                 );
+                localStorage.removeItem("token");
+                localStorage.setItem("token", response.data.accessToken); // Store the token in local storage
                 const successMessage = response.data.success; // Assuming success message is stored under 'success' key
                 setErrors({ name: '', email: '', password: '' })
                 setPassword("")
-                toast.success(successMessage);
+                // toast.success(successMessage);
                 navigate("/dashboard/?message=" + encodeURIComponent(successMessage));
             })
             .catch((error) => {

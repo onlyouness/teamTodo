@@ -1,71 +1,45 @@
 import axios from "axios";
-import {
-    createContext,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-} from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 
-export const AuthContext = createContext();
+export const AuthContext = createContext({
+    currentUser: null, // Initial value while data is loading
+    setCurrentUser: () => { }, // Placeholder function
+}
+);
 
 export const AuthContextProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
-    // const getUser = async () => {
-    //     const token = localStorage.getItem('token')
-    //     console.log("token",token)
-    //     const axiosInstance = axios.create({
-    //         baseURL: 'http://127.0.0.1:8000',
-    //         headers: {
-    //           'Authorization': `Bearer ${token}`,
-    //           'Content-Type': 'application/json',
-    //         },
-    //       });
+    const [isLoading, setIsLoading] = useState(true);
 
-    //       axiosInstance.get('/api/user').then(response => {
-    //           console.log(response.data);
-    //           setCurrentUser(response.data)
-    //       }).catch(error => {
-    //         console.error("The error of get",error);
-    //       });
 
-    // }
-
-    const getUser = async () => {
-   
-        
-        axios
-            .get("http://localhost:8000/api/me")
-        .then((response) => {
-            console.log(
-                "user:",
-                response
-            );
-
-           
-        })
-        .catch((error) => {
-            console.log(error)
-          
-        })
-       
-    };
-
-    const login = useCallback(async () => {
-
-        console.log("ok logged")
-    })
-        useEffect(() => {
-            if (!currentUser) {
-                getUser();
-
+    useEffect(() => {
+        const getUser = async () => {
+            const token = localStorage.getItem("token");
+            if (token) {
+                try {
+                    const response = await axios.get("http://localhost:8000/api/me", {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: "application/json",
+                        },
+                    });
+                    setCurrentUser(response.data.user);
+                    setIsLoading(false);
+                } catch (error) {
+                    console.log("Error fetching user:", error);
+                }
             }
-        },[currentUser])
+        };
+    
+            getUser();
+        
+    }, []);
 
-    //  const authcontextValue = useMemo(()=> ({currentUser,login}),{currentUser,login})
     return (
-        <AuthContext.Provider value={{ currentUser }}>
+        <AuthContext.Provider value={{ currentUser,isLoading,setCurrentUser }}>
             {children}
         </AuthContext.Provider>
     );
 };
+export const useAuth = () => useContext(AuthContext);
+

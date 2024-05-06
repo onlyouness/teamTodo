@@ -49,9 +49,9 @@ const Login = () => {
                 setErrors({ name: "", email: "", password: "" });
                 setPassword("");
                 // After successful login
-                // localStorage.removeItem("token");
-                // localStorage.setItem("token", response.data.token); // Store the token in local storage
-
+                localStorage.removeItem("token");
+                localStorage.setItem("token", response.data.accessToken); // Store the token in local storage
+                
                 // toast.success(successMessage);
                 navigate(
                     "/dashboard/?message=" + encodeURIComponent(successMessage)
@@ -61,13 +61,17 @@ const Login = () => {
                 console.log(error)
                 if (error.response.status == 422) {
                     const errorData = error.response.data.error;
+                   
                     setErrors(errorData);
+                    console.log(errors)
                 }
                 if (error.response.status == 406) {
                     const errorData = error.response.data;
-                    Object.keys(errorData).forEach((field) => {
-                        toast.error(`${field}: ${errorData[field]}`);
-                    });
+                    console.log(errors)
+                    setErrors(errorData)
+                    // Object.keys(errorData).forEach((field) => {
+                    //     toast.error(`${field}: ${errorData[field]}`);
+                    // });
                 }
                 setPassword("");
             })

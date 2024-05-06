@@ -49,7 +49,7 @@ class LoginController extends Controller
         ];
         try{
             $request->validate( $rules, $customMessages);
-            $credential = [
+            $credentials = [
                 "email" => $request->email,
                 "password" => $request->password,
             ];
@@ -57,29 +57,33 @@ class LoginController extends Controller
             
             if ($user) {
                 if (Hash::check($request->password, $user->password)) {
-                    if ( Auth::guard("api")->attempt($credential)) {
-                        $message = $this->notify->where('id', 26)->first()->custom_text;
-                        $notification = $message;
-                        \Log::info("user" . $request->user());
-                        // Session::put('userAuth', Auth::user());
-                        Session::flash('userAuth', Auth::user());
-                        Session::save();
-                        $tokenResult = $user->createToken('Personal Access Token');
-                        $token = $tokenResult->plainTextToken;
-                        \Log::info("auth user login" . Session::get("userAuth"));
-                        return response()->json(['success' => $notification,"user"=>Auth::guard("api")->user(),'accessToken' =>$token,
+                    $message = $this->notify->where('id', 26)->first()->custom_text;
+                    $token = $user->createToken('Personal Access Token')->plainTextToken;
+                         return response()->json(['success' => $message,"user"=>$user,'accessToken' =>$token,
                         'token_type' => 'Bearer',]);
-                    } else {
-                        $message = $this->notify->where('id', 28)->first()->custom_text;
-                        $notification = $message;
+                    // if ( Auth::attempt($credentials)) {
+                    //     $message = $this->notify->where('id', 26)->first()->custom_text;
+                    //     $notification = $message;
+                    //     \Log::info("user" . $request->user());
+                    //     // Session::put('userAuth', Auth::user());
+                    //     Session::flash('userAuth', Auth::user());
+                    //     Session::save();
+                    //     $tokenResult = $user->createToken('Personal Access Token');
+                    //     $token = $tokenResult->plainTextToken;
+                    //     \Log::info("auth user login" . Session::get("userAuth"));
+                    //     return response()->json(['success' => $notification,"user"=>Auth::user(),'accessToken' =>$token,
+                    //     'token_type' => 'Bearer',]);
+                    // } else {
+                    //     $message = $this->notify->where('id', 28)->first()->custom_text;
+                    //     $notification = $message;
     
-                        return response()->json(['error' => $notification],406 );
-                    }
+                    //     return response()->json(['error' => $notification],406 );
+                    // }
                 } else {
                     $message = $this->notify->where('id', 54)->first()->custom_text;
                     $notification =
                         $message;
-                    return response()->json(['password' => $notification]);
+                    return response()->json(['password' => $notification],406);
                 }
             } else {
                 if($request->google){
@@ -92,12 +96,12 @@ class LoginController extends Controller
                         "verified" => $request->verified ? $request->verified :  false,
                         "password" => Hash::make($request->password),
                     ]);
-                    Auth::guard("api")->login($user);
                     $message = $this->notify->where('id', 26)->first()->custom_text;
-                    $notification = $message;
+                    $token = $user->createToken('Personal Access Token')->plainTextToken;
+                    return response()->json(['success' => $message,"user"=>$user,'accessToken' =>$token,
+                   'token_type' => 'Bearer',]);
                       
                         
-                    return response()->json(['success' => $notification,"user"=>Auth::user()]);
                    
                 }else{
                     
@@ -114,27 +118,25 @@ class LoginController extends Controller
        
     }
     public function getUser(Request $request){
-        return response()->json($request->user());
+        return response()->json(["user"=>$request->user()]);
     }
 
     //Log out
     public function userLogOut(Request $request)
     {
         
-        $authSession = Session::get("userAuth");
-        // Session::remove("userAuth");
-        \Log::info("user auth" .Auth::guard("sanctum")->user());
-        // \Log::info("message: " .Session::get("message"));
-        if(Auth::guard("sanctum")->user()){
-           Auth::guard("sanctum")->logout();
-        // $request->user()->tokens()->delete();
+      
+     
+        // if($request->user()){
+        //    Auth::logout();
+        $request->user()->tokens()->delete();
         
            return response()->json(["success"=>"Sign out successfully "]);
-       } else{
-        \Log::info(" no user auth" .Auth::guard("api")->user());
-        return response()->json(["error"=>"No user To Log Out ","user"=> $authSession],406);
+    //    } else{
+    //     \Log::info(" no user auth" .Auth::guard("api")->user());
+    //     return response()->json(["error"=>"No user To Log Out "],406);
 
-       }
+    //    }
     }
     //register:
     public function register(Request $request)
@@ -166,9 +168,10 @@ class LoginController extends Controller
                 "verified" => $request->verified ? $request->verified :  false,
                 "password" => Hash::make($request->password),
             ]);
-            Auth::guard("web")->login($user);
-            
-            return response()->json(['success' =>"User Created Successfully"]);
+            $message = $this->notify->where('id', 26)->first()->custom_text;
+            $token = $user->createToken('Personal Access Token')->plainTextToken;
+            return response()->json(['success' => $message,"user"=>$user,'accessToken' =>$token,
+           'token_type' => 'Bearer',]);            
         } catch (ValidationException $e) {
             return response()->json(['error' => $e->errors()], 422);
         }
