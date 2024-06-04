@@ -24,6 +24,8 @@ return new class extends Migration
                 $table->timestamps();
             });
         }
+        if (!Schema::hasTable('sessions')) {
+        
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
@@ -31,7 +33,9 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
-        });
+        });}
+        if (!Schema::hasTable('personal_access_tokens')) {
+     
         Schema::create('personal_access_tokens', function (Blueprint $table) {
             $table->id();
             $table->morphs('tokenable');
@@ -41,7 +45,7 @@ return new class extends Migration
             $table->timestamp('last_used_at')->nullable();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
-        });
+        });   }
     }
 
     /**

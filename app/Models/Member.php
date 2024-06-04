@@ -12,15 +12,15 @@ class Member extends Model
 {
     use HasFactory;
     protected $fillable = [
-        "id","roleID","userID","teamID"
+        "id","role_id","user_id","team_id"
     ];
     public function team(){
-        return $this->belongsTo(Team::class,"teamID");
+        return $this->belongsTo(Team::class,"team_id");
     }
     public function user(){
-        return $this->belongsTo(User::class,"userID");
+        return $this->belongsTo(User::class,"user_id");
     }
     public function role(){
-        return $this->belongsTo(Role::class,"roleID");
+        return $this->belongsTo(Role::class,"role_id");
     }
 }

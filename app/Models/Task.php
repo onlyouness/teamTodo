@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Task extends Model
 {
-    protected $fillable = ["id", "title", "teamID", "desc", "date_start", "date_end", "status"];
+    protected $fillable = ["id", "title", "team_id", "desc", "date_start", "date_end", "status","user_id"];
     use HasFactory;
     public function team(){
-        return $this->belongsTo(Team::class,"teamID");
+        return $this->belongsTo(Team::class,"team_id");
     }
     public function comments(){
-        return $this->hasMany(Comment::class,"taskID");
+        return $this->hasMany(Comment::class,"task_id");
+    }
+    public function user(){
+       return $this->belongsTo(User::class, "user_id");
     }
 }

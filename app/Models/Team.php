@@ -11,16 +11,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Team extends Model
 {
     protected $fillable = [
-        "id","projectID","name"
+        "id","project_id","name"
     ];
     use HasFactory;
     public function project(){
-        return $this->belongsTo(Project::class,"projectID");
+        return $this->belongsTo(Project::class,"project_id");
     }
     public function members(){
-        return $this->hasMany(Member::class,"teamID");
+        return $this->hasMany(Member::class,"team_id");
     }
     public function tasks(){
-        return $this->hasMany(Task::class,"teamID");
+        return $this->hasMany(Task::class,"team_id");
     }
 }

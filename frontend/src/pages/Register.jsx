@@ -1,9 +1,10 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,useContext } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { Navigate,useNavigate ,Link } from 'react-router-dom';
+import { Navigate, useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from "../context/AuthContext";
 import {
     FormControl,
     FormLabel,
@@ -18,18 +19,29 @@ function Register() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [image,setImage] = useState('')
     const [errors, setErrors] = useState({ name: '', email: '', password: '' });
-    
+    const { getUser,setIsLogged } = useContext(AuthContext);
+    const handleImageChange = (e) => {
+        setImage(e.target.files[0]);
+       
+    };
     const handleSubmit = (e) => {
         e.preventDefault();
-        const newItem = {
-            name: name,
-            email: email,
-            password: password,
-        };
+        console.log(image)
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("image", image); 
+        formData.append("email", email);
+        formData.append("password", password);
+    
+     
+        console.log("items: ",formData)
 
         axios
-            .post("http://localhost:8000/api/register", newItem)
+            .post("http://localhost:8000/api/register", formData,{headers: {
+                'Content-Type': 'multipart/form-data'
+              }})
             .then((response) => {
                 console.log(
                     "user created successfully:",
@@ -41,7 +53,9 @@ function Register() {
                 setErrors({ name: '', email: '', password: '' })
                 setPassword("")
                 // toast.success(successMessage);
-                navigate("/dashboard/?message=" + encodeURIComponent(successMessage));
+                getUser();
+                setIsLogged(true)
+                navigate("/?message=" + encodeURIComponent(successMessage));
             })
             .catch((error) => {
                 const errorData = error.response.data.error;
@@ -56,7 +70,7 @@ function Register() {
     return (
         <>
             <Toaster />
-            <div className="flex  justify-center items-center flex-col gap-2 w-full">
+            <div className="flex  justify-center items-center flex-col gap-2 w-1/2 mx-auto shadow px-7 py-5 rounded-lg bg-white ">
                 <h1 className="text-gray-700 text-2xl font-semibold ">
                     Create an account
                 </h1>
@@ -64,7 +78,7 @@ function Register() {
                 <form
                     onSubmit={handleSubmit}
                     action=""
-                    className=" mt-6 flex flex-col gap-4 w-1/2 max-w-lg"
+                    className=" mt-6 flex flex-col gap-4 w-full max-w-lg"
                 >
                     <div className="flex flex-col gap-2 ">
                         <FormLabel>Name:</FormLabel>
@@ -88,6 +102,13 @@ function Register() {
                             label="m@gmail.com"
                         />
                     </div>
+                    {/* <div className="flex flex-col gap-2 ">
+                        <FormLabel>Image File:</FormLabel>
+                        <TextField
+                            type="file"
+                            onChange={handleImageChange}
+                        />
+                    </div> */}
                     <div className="flex flex-col gap-2 ">
                         <FormLabel>Password:</FormLabel>
                         <TextField
@@ -129,13 +150,14 @@ function Register() {
                                     email: crendentialResposeDecoded.email,
                                     image: crendentialResposeDecoded.picture,
                                     password: "1234",
-                                    verified : crendentialResposeDecoded.email_verified,
+                                    verified: crendentialResposeDecoded.email_verified,
+                                   
                                 };
                                 // console.log(newItem)
 
                                 axios
                                     .post(
-                                        "http://localhost:8000/api/register",
+                                        "http://localhost:8000/api/register-google",
                                         newItem
                                     )
                                     .then((response) => {
@@ -149,7 +171,13 @@ function Register() {
                                             "Success message:",
                                             successMessage
                                         );
-                                        toast.success(successMessage);
+                                        localStorage.removeItem("token");
+                                        localStorage.setItem("token", response.data.accessToken); // Store the token in local storage
+                                        getUser();
+                                        setIsLogged(true)
+                                        navigate("/?message=" + encodeURIComponent(successMessage));
+
+                                        // toast.success(successMessage);
                                     })
                                     .catch((error) => {
                                         console.error(

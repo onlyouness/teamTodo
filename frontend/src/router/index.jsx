@@ -6,14 +6,23 @@ import Home from "../pages/Home";
 import ResetPassword from "../pages/ResetPassword";
 import Dashboard from "../pages/Dashboard";
 import ForgetPassword from "../pages/ForgetPassword";
+import RequireAuth from "../components/RequireAuth";
+import Projects from "../pages/Projects";
+import SingleProject from "../pages/SingleProject";
+import Test from "../pages/Test";
 
 export const router = createBrowserRouter([
     {
         element: <Layout />,
-        children: [{
+        children: [
+            {
             path: '/',
-            element:<Home />
-        },
+            element:<RequireAuth> <Dashboard /></RequireAuth>
+            },
+            {
+            path: '/projects',
+            element:<RequireAuth> <Projects /></RequireAuth>
+            },
             {
                 path: '/register',
                 element:<Register />
@@ -25,7 +34,7 @@ export const router = createBrowserRouter([
             {
                 exact:true,
                 path: '/dashboard',
-                element:<Dashboard />
+                element:  <Home/>
             },
             {
                 
@@ -33,8 +42,18 @@ export const router = createBrowserRouter([
                 element:<ForgetPassword />
             },
             {
+                
+                path: '/test',
+                element:<Test />
+            },
+
+            {
                 path: '/api/reset/:token', // Update the route to match Laravel's route
                 element: <ResetPassword />
+            },
+            {
+                path: "/projects/:id",
+                element: <RequireAuth> <SingleProject /></RequireAuth>,
             },
             {
                 path: "*",

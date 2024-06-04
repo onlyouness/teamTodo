@@ -18,15 +18,15 @@ class TaskFactory extends Factory
     {
         return [
             //
-            'title' => fake()->sentence(),
+            'title' => fake()->sentence(2),
             'desc' => fake()->realText(),
             'date_start' => time(),
             'date_end' => fake()->dateTimeBetween('now', '+1 year'),
             'status' => fake()
-                ->randomElement(['pending', 'in_progress', 'completed']),
+                ->randomElement(['Pending', 'In progress', 'Completed']),
       
-            'userID' => fake()->randomElement([1, 2]),
-            'teamID' => fake()->randomElement([1, 2]),
+            
+            'teamID' => fake()->randomElement([1, 2,3]),
             'priority' => fake()
                 ->randomElement(['low', 'medium', 'high']),
             'created_at' => time(),

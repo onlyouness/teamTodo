@@ -23,8 +23,9 @@ class DatabaseSeeder extends Seeder
         //     'password' => bcrypt('1234'),
         // ]);
         Team::factory()
-        ->count(10)
-        ->hasTasks(15)
+        ->count(3)
+        ->hasTasks(5)
         ->create();
+        
     }
 }

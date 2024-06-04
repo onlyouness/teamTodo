@@ -1,10 +1,17 @@
 <?php
 
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\MembersController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SprintController;
+use App\Http\Controllers\TaskController;
+use App\Models\Sprint;
 use App\Models\Task;
 use App\Models\Team;
+use App\Models\Test;
 use App\Models\User;
-use Tymon\JWTAuth\JWTAuth;
 // use JWTAuth;
+use Tymon\JWTAuth\JWTAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +45,10 @@ Route::get("/logout",[LoginController::class,"userLogOut"]);
 
 Route::post("/login",[LoginController::class,"login"]);
 Route::post("/register",[LoginController::class,"register"]);
+
+Route::post("/login-google",[LoginController::class,"loginGoogle"]);
+Route::post("/register-google",[LoginController::class,"registerGoogle"]);
+
 Route::post("/forget-password",[LoginController::class,"forgetPassword"]);
 Route::get("/reset/{token}", [LoginController::class, "resetPassword"]);
 Route::post("/confirm-reset/{token}", [LoginController::class, "postPassword"]);
@@ -51,21 +62,41 @@ Route::get("user", function () {
         return response()->json(["error" => "Unauthenticated"], 401);
     }
 })->withoutMiddleware('auth:api'); // Applying auth middleware to protect the route
-// Route::get("/member", function () {
-//     // $team = Team::where("id",1)->first();
-//     // \Log::info("member".$team->members);
-//     // $formattedDate = Carbon::parse($request->date)->format('Y-m-s');
-//     // return "ok";
-//     $user = Task::find(2);
-//     return $user->comments;
-// });
-Route::get("/member", function () {
 
-    // $user = Task::where("userID",1)->get();
-    $user = Team::first();
-    \Log::info("member".$user->tasks);
-    return response()->json(["tasks"=>$user->tasks,"teams"=>$user]);
-});
+
+
+//teams
 Route::post("create_team", [TeamController::class, "createTeam"]);
-Route::post("create_task", [TeamController::class, "createTask"]);
+Route::get("/teams", [TeamController::class, "index"]);
+Route::get("/teams/{id}", [TeamController::class, "teambyProject"]);
+Route::delete("delete/{team}", function (Team $team) {
+    $team->delete();
+    return response()->json("ok");
+});
+
+//tasks
+Route::post("/create_task", [TaskController::class, "createTask"]);
+Route::get("/get_tasks", [TaskController::class, "getTasks"]);
+Route::get("/tasks/{task}", [TaskController::class, "show"]);
+Route::put("task-status/{task}", [TaskController::class, "updateStatus"]);
+Route::put("/task-priority/{task}", [TaskController::class, "updatePriority"]);
 Route::post("create_comment", [TeamController::class, "createComment"]);
+Route::put("/tasks/{task}", [TaskController::class, "edit"]);
+
+//project Route 
+Route::get('/projects', [ProjectController::class, "index"]);
+Route::get('/projects/{project}/project', [ProjectController::class, "show"]);
+Route::get("/projects/{project}", [ProjectController::class, "edit"]);
+Route::put("/projects/{project}", [ProjectController::class, "update"]);
+Route::delete("/projects/{project}", [ProjectController::class, "destroy"]);
+Route::post("/projects/add", [ProjectController::class, "store"]);
+
+
+// Comments Routes
+Route::post("/comments", [CommentController::class, "store"]);
+
+//Sprint Routes
+Route::post("/sprints", [SprintController::class, "store"]);
+
+//members Routes:
+Route::get("/members/{id}", [MembersController::class, "memberByTeam"]);

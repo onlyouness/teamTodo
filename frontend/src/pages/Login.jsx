@@ -1,23 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { Navigate, useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import {
-    FormControl,
-    FormLabel,
-    Input,
-    InputLabel,
-    TextField,
-    Button,
-} from "@mui/material";
+import { AuthContext } from "../context/AuthContext";
+import { FormLabel, TextField, Button } from "@mui/material";
 const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({ email: "", password: "" });
-
+    const { getUser, setIsLogged, setIsLoading } = useContext(AuthContext);
     useEffect(() => {
         var urlParams = new URLSearchParams(window.location.search);
         var message = urlParams.get("message");
@@ -35,15 +29,11 @@ const Login = () => {
             email: email,
             password: password,
         };
-        console.log(newItem);
 
         axios
             .post("http://localhost:8000/api/login", newItem)
             .then((response) => {
-                console.log(
-                    "user logged in successfully:",
-                    response
-                );
+                console.log("user logged in successfully:", response);
 
                 const successMessage = response.data.success; // Assuming success message is stored under 'success' key
                 setErrors({ name: "", email: "", password: "" });
@@ -51,24 +41,25 @@ const Login = () => {
                 // After successful login
                 localStorage.removeItem("token");
                 localStorage.setItem("token", response.data.accessToken); // Store the token in local storage
-                
+                getUser();
+                setIsLogged(true);
+
                 // toast.success(successMessage);
-                navigate(
-                    "/dashboard/?message=" + encodeURIComponent(successMessage)
-                );
+                // <Navigate to={"/login"} />
+                navigate("/?message=" + encodeURIComponent(successMessage));
             })
             .catch((error) => {
-                console.log(error)
+                console.log(error);
                 if (error.response.status == 422) {
                     const errorData = error.response.data.error;
-                   
+
                     setErrors(errorData);
-                    console.log(errors)
+                    console.log(errors);
                 }
                 if (error.response.status == 406) {
                     const errorData = error.response.data;
-                    console.log(errors)
-                    setErrors(errorData)
+                    console.log(errors);
+                    setErrors(errorData);
                     // Object.keys(errorData).forEach((field) => {
                     //     toast.error(`${field}: ${errorData[field]}`);
                     // });
@@ -83,7 +74,7 @@ const Login = () => {
     return (
         <>
             <Toaster />
-            <div className="flex  justify-center items-center flex-col gap-2 w-full">
+            <div className="flex justify-center items-center flex-col gap-2 w-1/2 mx-auto shadow px-7 py-5 rounded-lg bg-white ">
                 <h1 className="text-gray-700 text-2xl font-semibold ">
                     Log To Your account
                 </h1>
@@ -91,7 +82,7 @@ const Login = () => {
                 <form
                     onSubmit={handleSubmit}
                     action=""
-                    className=" mt-6 flex flex-col gap-4 w-1/2 max-w-lg"
+                    className=" mt-6 flex flex-col gap-4 w-full  max-w-lg"
                 >
                     <div className="flex flex-col gap-2 ">
                         <FormLabel>Email Adress:</FormLabel>
@@ -120,14 +111,16 @@ const Login = () => {
                             className="flex items-center text-gray-900 rounded-lg  hover:underline  group"
                         >
                             <span className="flex-1 whitespace-nowrap">
-                                Forget Password?Sign Up
+                                Forget Password?
                             </span>
                         </Link>
                     </div>
 
-                    <Button type="submit" variant="contained">
-                        Login
-                    </Button>
+                  
+                        <Button type="submit" variant="contained">
+                            Login
+                        </Button>
+                    
 
                     <div className="flex gap-2 ">
                         <p>Don't have an account?</p>
@@ -181,8 +174,15 @@ const Login = () => {
                                             "Success message:",
                                             successMessage
                                         );
+                                        localStorage.removeItem("token");
+                                        localStorage.setItem(
+                                            "token",
+                                            response.data.accessToken
+                                        ); // Store the token in local storage
+                                        getUser();
+                                        setIsLogged(true);
                                         navigate(
-                                            "/dashboard/?message=" +
+                                            "/?message=" +
                                                 encodeURIComponent(
                                                     successMessage
                                                 )

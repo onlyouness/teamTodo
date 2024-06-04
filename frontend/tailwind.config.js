@@ -15,10 +15,17 @@ export default  {
       padding: "2rem",
       screens: {
         "2xl": "1400px",
+        "sidebar":"733px",
       },
     },
     extend: {
+      screens: {
+        "sidebar": "733px",
+      },
       colors: {
+        
+          primaryColor: "#6963ff",
+          primaryHover: "#5a54f8",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

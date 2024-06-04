@@ -25,7 +25,7 @@ class TeamController extends Controller
             'project_id.required' => ValidationText::query()->where("id", 217)->first()->custom_text,
 
         ];
-        \Log::info("request",$request->all());
+        // \Log::info("request",$request->all());
      
 
     
@@ -50,47 +50,16 @@ class TeamController extends Controller
             return response()->json(['error' => $e->errors()], 422);
         }
     }
-    public function createTask(Request $request){
-        $rules = [
-            'title' => "required",
-            "date_start"=>"required",
-            "team_id"=>"required",
 
-
-        ];
-        $customMessage = [
-            'title.required' => ValidationText::query()->where("id", 18)->first()->custom_text,
-            'date_start.required' => ValidationText::query()->where("id", 32)->first()->custom_text,
-
-        ];
-        \Log::info("request",$request->all());
-     
-
-    
-        try {
-             $request->validate($rules, $customMessage);
-
-            Task::create([
-                "title" => $request->title,
-                "teamID" => $request->team_id,
-                "date_start"=>$request->date_start,
-                "date_end"=>$request->date_end,
-                "status"=>"in process",
-                
-            ]);
-
-           
-            $message = NotificationText::where("id", 9)->first()->custom_text;
-            $notification = [
-                $message,
-                "success"
-            ];
-
-            return response()->json(['success' => $notification]);
-        } catch (ValidationException $e) {
-            return response()->json(['error' => $e->errors()], 422);
-        }
+    public function index(){
+       $teams = Team::all();
+        return response()->json(["teams"=>$teams]);
     }
+    public function teambyProject($id){
+       $teams = Team::where("project_id",$id)->get();
+        return response()->json(["teams"=>$teams]);
+    }
+   
     public function createComment(Request $request){
         $rules = [
             'content' => "required",
@@ -103,7 +72,7 @@ class TeamController extends Controller
             'content.required' => ValidationText::query()->where("id", 10)->first()->custom_text,
 
         ];
-        \Log::info("request",$request->all());
+        // \Log::info("request",$request->all());
      
 
     

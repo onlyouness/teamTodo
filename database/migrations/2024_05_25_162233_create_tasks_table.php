@@ -17,10 +17,13 @@ return new class extends Migration
             $table->string("desc");
             $table->string("status");
             $table->string("priority");
-            $table->string("date_start");
-            $table->string("date_end");
-            $table->foreignId("teamID")->constrained("teams");
-            $table->foreignId("userID")->constrained("users");
+            $table->timestamp("date_start");
+            $table->timestamp("date_end")->nullable();
+            $table->foreignId("team_id")->constrained("teams");
+            $table->unsignedBigInteger("user_id");
+            $table->unsignedBigInteger("sprint_id");
+            $table->foreign("user_id")->references("id")->on("users")->onDelete("cascade");
+            $table->foreign("sprint_id")->references("id")->on("sprints")->onDelete("cascade");
             $table->timestamps();
        
     });
